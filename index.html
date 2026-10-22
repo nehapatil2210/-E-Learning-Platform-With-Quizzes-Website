@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+
+{% block title %}E-Learning Platform with Quizzes - Learn, Practice, Test{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-badge">
+            <span>✨</span> Next-Gen Educational Platform for College Students
+        </div>
+        <h1 class="hero-title">
+            Learn to Code. Practice Your Skills.<br>
+            <span class="highlight">Test Your Knowledge.</span>
+        </h1>
+        <p class="hero-subtitle">
+            An interactive educational environment inspired by the best structured tutorials. Master Python, C, C++, Java, Web Development, SQL, and DSA through bite-sized lessons, live code playgrounds, and comprehensive quizzes.
+        </p>
+        <div class="hero-buttons">
+            {% if current_user %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Go to My Dashboard</a>
+                <a href="{{ url_for('course_catalog') }}" class="btn btn-secondary btn-lg">Explore All Courses</a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Start Learning Free</a>
+                <a href="{{ url_for('course_catalog') }}" class="btn btn-secondary btn-lg">Explore Courses</a>
+            {% endif %}
+            <a href="{{ url_for('playground') }}" class="btn btn-outline btn-lg">Try Code Playground</a>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="hero-stats">
+            <div class="stat-item">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Core Subjects</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">80+</div>
+                <div class="stat-label">Interactive Quizzes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Free &amp; Open Access</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">Verified</div>
+                <div class="stat-label">Certificates</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Continue Learning Section (if logged-in user has active courses) -->
+{% if continue_course %}
+<section style="background-color: var(--primary-green-subtle); padding: 24px 0; border-bottom: 1px solid var(--border-color);">
+    <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: gap; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="font-size: 2rem;">🚀</div>
+            <div>
+                <div style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--primary-green-dark);">
+                    Continue Where You Left Off
+                </div>
+                <h4 style="margin: 0; color: var(--text-primary); font-size: 1.15rem;">
+                    {{ continue_course.course_title }} &bull; {{ continue_course.last_lesson_title or 'Next Lesson' }}
+                </h4>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+                    Progress: {{ continue_course.progress_percent }}% completed
+                </div>
+            </div>
+        </div>
+        <div>
+            <a href="{{ url_for('lesson_viewer', slug=continue_course.course_slug, lesson_id=continue_course.last_lesson_id or 1) }}" class="btn btn-primary">
+                Resume Lesson &rarr;
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Popular Courses Section -->
+<section style="padding: 70px 0;">
+    <div class="container">
+        <div class="section-title-wrap">
+            <div>
+                <h2 class="section-title">Popular Courses</h2>
+                <p class="section-subtitle">Structured from beginner syntax to advanced application development</p>
+            </div>
+            <a href="{{ url_for('course_catalog') }}" class="btn btn-outline btn-sm">View All Courses &rarr;</a>
+        </div>
+
+        <div class="cards-grid">
+            {% for course in popular_courses %}
+            <div class="course-card">
+                <div class="card-top">
+                    <div class="course-icon-badge" style="background: linear-gradient(135deg, {{ course.badge_color or '#10b981' }}, #047857);">
+                        {% if course.slug == 'python' %}🐍
+                        {% elif course.slug == 'c-programming' %}⚡
+                        {% elif course.slug == 'cpp-programming' %}⚙️
+                        {% elif course.slug == 'java-programming' %}☕
+                        {% elif course.slug == 'html-css' %}🎨
+                        {% elif course.slug == 'javascript' %}💛
+                        {% elif course.slug == 'sql' %}🗄️
+                        {% elif course.slug == 'dsa' %}🌳
+                        {% else %}💻{% endif %}
+                    </div>
+                    <span class="difficulty-pill diff-{{ course.difficulty.lower() }}">{{ course.difficulty }}</span>
+                </div>
+
+                <h3 class="course-card-title">{{ course.title }}</h3>
+                <p class="course-card-desc">{{ course.short_desc or course.description[:110] ~ '...' }}</p>
+
+                <div class="course-card-meta">
+                    <span>📖 {{ course.lesson_count }} Lessons</span>
+                    <span>⏱️ ~{{ course.estimated_hours }} Hours</span>
+                    <span>👥 {{ course.student_count }} Students</span>
+                </div>
+
+                <div style="margin-top: auto;">
+                    <a href="{{ url_for('course_detail', slug=course.slug) }}" class="btn btn-primary" style="width: 100%;">
+                        Start Learning &rarr;
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section style="background-color: var(--bg-primary); padding: 70px 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+    <div class="container">
+        <div style="text-align: center; max-width: 650px; margin: 0 auto 50px;">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">A proven 4-step pedagogical system for learning computer science effectively</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 30px;">
+            <div style="background-color: var(--bg-card); padding: 30px 24px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); text-align: center;">
+                <div style="width: 56px; height: 56px; border-radius: 50%; background-color: var(--primary-green-subtle); color: var(--primary-green-dark); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 18px; font-weight: 800;">1</div>
+                <h4 style="font-size: 1.15rem; margin-bottom: 10px;">Bite-Sized Lessons</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+                    Clear, concise theory inspired by W3Schools syntax definitions with real code examples and expected outputs.
+                </p>
+            </div>
+
+            <div style="background-color: var(--bg-card); padding: 30px 24px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); text-align: center;">
+                <div style="width: 56px; height: 56px; border-radius: 50%; background-color: var(--accent-blue-light); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 18px; font-weight: 800;">2</div>
+                <h4 style="font-size: 1.15rem; margin-bottom: 10px;">Hands-On Playground</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+                    Run and test code safely in isolated execution environments with instant output and practice challenges.
+                </p>
+            </div>
+
+            <div style="background-color: var(--bg-card); padding: 30px 24px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); text-align: center;">
+                <div style="width: 56px; height: 56px; border-radius: 50%; background-color: rgba(245, 158, 11, 0.15); color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 18px; font-weight: 800;">3</div>
+                <h4 style="font-size: 1.15rem; margin-bottom: 10px;">Interactive Quizzes</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+                    Test your understanding with 10-question topic quizzes, instant grading, detailed answer explanations, and reviews.
+                </p>
+            </div>
+
+            <div style="background-color: var(--bg-card); padding: 30px 24px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); text-align: center;">
+                <div style="width: 56px; height: 56px; border-radius: 50%; background-color: rgba(139, 92, 246, 0.15); color: var(--accent-purple); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 18px; font-weight: 800;">4</div>
+                <h4 style="font-size: 1.15rem; margin-bottom: 10px;">Earn Certificates</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+                    Complete lessons and pass quizzes with 70%+ to unlock official, verifiable course completion certificates.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Our Platform Section -->
+<section style="padding: 70px 0;">
+    <div class="container">
+        <div class="section-title-wrap">
+            <div>
+                <h2 class="section-title">Why Choose Our Platform?</h2>
+                <p class="section-subtitle">Built specifically for college students, educators, and aspiring engineers</p>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+            <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; display: flex; gap: 16px;">
+                <div style="font-size: 1.8rem; color: var(--primary-green-dark);">🛡️</div>
+                <div>
+                    <h4 style="font-size: 1.1rem; margin-bottom: 6px;">Persistent Progress &amp; Data</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                        Never lose track. All completed lessons, quiz scores, bookmarks, and notes are securely stored in the backend database.
+                    </p>
+                </div>
+            </div>
+
+            <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; display: flex; gap: 16px;">
+                <div style="font-size: 1.8rem; color: var(--accent-blue);">🤖</div>
+                <div>
+                    <h4 style="font-size: 1.1rem; margin-bottom: 6px;">EduBot AI Assistant</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                        Get instantaneous explanations for syntax questions, debugging hints, and conceptual clarifications 24/7.
+                    </p>
+                </div>
+            </div>
+
+            <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; display: flex; gap: 16px;">
+                <div style="font-size: 1.8rem; color: #d97706;">🔥</div>
+                <div>
+                    <h4 style="font-size: 1.1rem; margin-bottom: 6px;">Streaks &amp; Badge Rewards</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                        Stay motivated with daily learning streaks, achievement badges, and milestone recognition as you study.
+                    </p>
+                </div>
+            </div>
+
+            <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; display: flex; gap: 16px;">
+                <div style="font-size: 1.8rem; color: var(--accent-purple);">🔖</div>
+                <div>
+                    <h4 style="font-size: 1.1rem; margin-bottom: 6px;">Smart Revision Center</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                        Revisit previously incorrect quiz questions, review bookmarked tutorials, and search your personal study notes.
+                    </p>
+                </div>
+            </div>
+
+            <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; display: flex; gap: 16px;">
+                <div style="font-size: 1.8rem; color: #0284c7;">📈</div>
+                <div>
+                    <h4 style="font-size: 1.1rem; margin-bottom: 6px;">Learning Analytics</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                        Detailed visual charts depicting your quiz score progress over time, subject mastery, and course completion rates.
+                    </p>
+                </div>
+            </div>
+
+            <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; display: flex; gap: 16px;">
+                <div style="font-size: 1.8rem; color: var(--primary-green-dark);">🌙</div>
+                <div>
+                    <h4 style="font-size: 1.1rem; margin-bottom: 6px;">Dark &amp; Light Themes</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                        Comfortable studying day or night. Switch between themes seamlessly with instant state persistence.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Quizzes Section -->
+<section style="background-color: var(--bg-primary); padding: 70px 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+    <div class="container">
+        <div class="section-title-wrap">
+            <div>
+                <h2 class="section-title">Popular Topic Quizzes</h2>
+                <p class="section-subtitle">Timed multiple-choice assessments with immediate feedback and answer explanations</p>
+            </div>
+            <a href="{{ url_for('quizzes_index') }}" class="btn btn-outline btn-sm">All Quizzes &rarr;</a>
+        </div>
+
+        <div class="cards-grid">
+            {% for q in quizzes %}
+            <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; display: flex; flex-direction: column; box-shadow: var(--shadow-sm);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--primary-green-dark); background: var(--primary-green-subtle); padding: 4px 8px; border-radius: var(--radius-sm);">
+                        {{ q.course_title }}
+                    </span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">⏱️ {{ q.time_limit_minutes }} mins</span>
+                </div>
+                <h4 style="font-size: 1.15rem; margin-bottom: 8px; color: var(--text-primary);">{{ q.title }}</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px; flex: 1;">
+                    {{ q.description }}
+                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border-light);">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">🎯 Pass: {{ q.passing_score }}%</span>
+                    <a href="{{ url_for('quiz_instructions', quiz_id=q.id) }}" class="btn btn-primary btn-sm">Take Quiz &rarr;</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section style="padding: 70px 0;">
+    <div class="container" style="max-width: 860px;">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <p class="section-subtitle">Everything you need to know about getting started and tracking your progress</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            <details style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px 24px; cursor: pointer;">
+                <summary style="font-weight: 700; font-size: 1.05rem; color: var(--text-primary);">Is this platform free for college students?</summary>
+                <p style="margin-top: 12px; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
+                    Yes, all courses, tutorials, coding playgrounds, and quizzes are 100% free and open for academic use.
+                </p>
+            </details>
+
+            <details style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px 24px; cursor: pointer;">
+                <summary style="font-weight: 700; font-size: 1.05rem; color: var(--text-primary);">How do I earn a verified course completion certificate?</summary>
+                <p style="margin-top: 12px; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
+                    To qualify for a certificate, you must mark all lessons in the course as completed (100% progress) and achieve a passing score (70%+) on the course quiz. Once completed, your certificate is automatically generated with a unique verification code.
+                </p>
+            </details>
+
+            <details style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px 24px; cursor: pointer;">
+                <summary style="font-weight: 700; font-size: 1.05rem; color: var(--text-primary);">Can I run code directly in my browser?</summary>
+                <p style="margin-top: 12px; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
+                    Yes! Our interactive Coding Playground allows you to run Python, HTML/CSS, and JavaScript live. Standard math, algorithms, functions, and data structures execute in an isolated sandbox with sub-second response times.
+                </p>
+            </details>
+
+            <details style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px 24px; cursor: pointer;">
+                <summary style="font-weight: 700; font-size: 1.05rem; color: var(--text-primary);">What is the Smart Revision feature?</summary>
+                <p style="margin-top: 12px; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
+                    Smart Revision automatically collects the questions you previously missed on quizzes, along with your bookmarked lessons and study notes, allowing you to practice weak areas before exams.
+                </p>
+            </details>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Banner -->
+<section style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: #ffffff; padding: 60px 0; text-align: center;">
+    <div class="container">
+        <h2 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 16px;">Ready to Level Up Your Programming Skills?</h2>
+        <p style="font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto 30px;">
+            Join your peers, complete interactive lessons, practice quizzes, and earn your verified certificate today.
+        </p>
+        {% if current_user %}
+            <a href="{{ url_for('course_catalog') }}" class="btn btn-secondary btn-lg" style="background-color: #ffffff; color: #047857; font-weight: 700;">Explore Courses Now</a>
+        {% else %}
+            <a href="{{ url_for('register') }}" class="btn btn-secondary btn-lg" style="background-color: #ffffff; color: #047857; font-weight: 700;">Create Free Student Account</a>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}
